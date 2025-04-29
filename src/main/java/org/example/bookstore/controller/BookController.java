@@ -1,12 +1,15 @@
 package org.example.bookstore.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.bookstore.dto.BookDto;
 import org.example.bookstore.dto.BookSearchParametersDto;
 import org.example.bookstore.dto.CreateBookRequestDto;
 import org.example.bookstore.service.BookService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,38 +24,57 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("books")
 @RequiredArgsConstructor
+@Tag(name = "Book management", description = "Endpoints for managing books")
 public class BookController {
     private final BookService bookService;
 
+    @Operation(summary = "Get all books", description = "Get a list of all available books. "
+            + "Pagination: add a ? followed by the query {page}={value}&{size}={value} "
+            + "For example: /books?page=0&size=10 "
+            + "Sorting: add & followed by {sort}={field} or {sort}={field, DESC}")
     @GetMapping
-    public List<BookDto> getAll() {
-        return bookService.findAll();
+    public Page<BookDto> getAll(Pageable pageable) {
+        return bookService.findAll(pageable);
     }
 
+    @Operation(summary = "Get a book by id", description = "Get a book by id")
     @GetMapping("/{id}")
     public BookDto getBookById(@PathVariable Long id) {
         return bookService.findById(id);
     }
 
+    @Operation(summary = "Create a book", description = "Create a book")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookDto createBook(@RequestBody @Valid CreateBookRequestDto bookDto) {
         return bookService.save(bookDto);
     }
 
+    @Operation(summary = "Update book ", description = "Update the book by id")
     @PutMapping("/{id}")
-    public BookDto updateBook(@RequestBody CreateBookRequestDto requestDto, @PathVariable Long id) {
+    public BookDto updateBook(@RequestBody @Valid CreateBookRequestDto requestDto,
+                              @PathVariable Long id) {
         return bookService.update(requestDto, id);
     }
 
+    @Operation(summary = "Delete book", description = "Delete the book by id")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Long id) {
         bookService.deleteById(id);
     }
 
+    @Operation(summary = "Search book", description
+            = "Search books by {title}, {author}, {isbn} or {minPrice}/{maxPrice}. "
+            + "To start searching add a ? followed by the query {query}={value}. "
+            + "If you want to chain several queries in the same call, use & followed by the query."
+            + " Pagination: add a & followed by the query {page}={value}&{size}={value}. "
+            + "For example: /books/search"
+            + "?titles=harry potter and the philosopher's stone&page=0&size=10 "
+            + "Sorting: add & followed by {sort}={field} or {sort}={field, DESC}")
     @GetMapping("/search")
-    public List<BookDto> searchBooks(BookSearchParametersDto parametersDto) {
-        return bookService.search(parametersDto);
+    public Page<BookDto> searchBooks(@Valid BookSearchParametersDto parametersDto,
+                                     Pageable pageable) {
+        return bookService.search(parametersDto, pageable);
     }
 }
