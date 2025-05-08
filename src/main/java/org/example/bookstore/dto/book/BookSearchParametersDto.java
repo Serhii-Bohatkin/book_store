@@ -1,24 +1,17 @@
-package org.example.bookstore.dto;
+package org.example.bookstore.dto.book;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
-import java.math.BigDecimal;
 
-public record CreateBookRequestDto(
-        @NotBlank
+public record BookSearchParametersDto(
         String title,
-        @NotBlank
         String author,
-        @NotBlank
         @Pattern(regexp = ISBN_REGEXP, message = "must be 10 or 13 digit ISBN code")
         String isbn,
         @Positive
-        @NotNull
-        BigDecimal price,
-        String description,
-        String coverImage
+        Integer minPrice,
+        @Positive
+        Integer maxPrice
 ) {
     private static final String ISBN_REGEXP = "^(?:ISBN(?:-1[03])?:? )?(?=[-0-9 ]{17}$|[-0-9X ]"
             + "{13}$|[0-9X]{10}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?(?:[0-9]+[- ]?){2}[0-9X]$";
