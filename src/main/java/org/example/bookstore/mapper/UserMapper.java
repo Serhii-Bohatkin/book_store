@@ -17,6 +17,7 @@ public interface UserMapper {
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "authorities", ignore = true)
+    @Mapping(target = "authorityList", ignore = true)
     User toModel(UserRegistrationRequestDto requestDto);
 
     @Mapping(target = "id", ignore = true)
@@ -25,5 +26,6 @@ public interface UserMapper {
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "authorities", ignore = true)
+    @Mapping(target = "authorityList", ignore = true)
     User toModel(UserUpdateDto updateDto);
 }

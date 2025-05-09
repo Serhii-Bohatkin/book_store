@@ -20,7 +20,7 @@ public record UserRegistrationRequestDto(
         String lastName,
         @NotBlank
         String shippingAddress,
-        @Size(min = 0, max = 100)
+        @Size(max = 100)
         String inviteCode
 ) {
 }

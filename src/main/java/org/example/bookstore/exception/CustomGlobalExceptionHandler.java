@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -21,7 +22,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler {
-
     public static final String TIMESTAMP = "timestamp";
     public static final String MESSAGE = "message";
     public static final String ERROR = "error";
@@ -66,6 +66,13 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     @ExceptionHandler(AuthorizationDeniedException.class)
     protected ResponseEntity<Object> handleAuthorizationDeniedException(
             AuthorizationDeniedException ex) {
+        Map<String, Object> body = createHttpResponseBody(HttpStatus.FORBIDDEN, ex);
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    protected ResponseEntity<Object> handleBadCredentialsException(
+            BadCredentialsException ex) {
         Map<String, Object> body = createHttpResponseBody(HttpStatus.FORBIDDEN, ex);
         return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
     }

@@ -1,24 +1,65 @@
 package org.example.bookstore.security;
 
+import io.jsonwebtoken.Claims;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.example.bookstore.dto.jwt.JwtResponseDto;
 import org.example.bookstore.dto.user.UserLoginRequestDto;
-import org.example.bookstore.dto.user.UserLoginResponseDto;
+import org.example.bookstore.exception.AuthenticationException;
+import org.example.bookstore.model.User;
+import org.example.bookstore.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final JwtUtil jwtUtil;
+    private final UserService userService;
+    private final Map<String, String> refreshStorage = new HashMap<>();
+    private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
 
-    public UserLoginResponseDto authenticate(UserLoginRequestDto request) {
-        final Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                request.email(), request.password()));
-        String token = jwtUtil.generateToken(authentication.getName());
-        return new UserLoginResponseDto(token);
+    public JwtResponseDto login(@NonNull UserLoginRequestDto requestDto) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                requestDto.email(), requestDto.password()));
+        User user = (User) userService.loadUserByUsername(requestDto.email());
+        final String accessToken = jwtProvider.generateAccessToken(user);
+        final String refreshToken = jwtProvider.generateRefreshToken(user);
+        refreshStorage.put(user.getEmail(), refreshToken);
+        return new JwtResponseDto(accessToken, refreshToken);
+
+    }
+
+    public JwtResponseDto getAccessToken(@NonNull String refreshToken) {
+        if (jwtProvider.validateRefreshToken(refreshToken)) {
+            final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
+            final String email = claims.getSubject();
+            final String savedRefreshToken = refreshStorage.get(email);
+            if (savedRefreshToken != null && savedRefreshToken.equals(refreshToken)) {
+                final User user = (User) userService.loadUserByUsername(email);
+                final String accessToken = jwtProvider.generateAccessToken(user);
+                return new JwtResponseDto(accessToken, null);
+            }
+        }
+        return new JwtResponseDto(null, null);
+    }
+
+    public JwtResponseDto refresh(@NonNull String refreshToken) {
+        if (jwtProvider.validateRefreshToken(refreshToken)) {
+            final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
+            final String email = claims.getSubject();
+            final String saveRefreshToken = refreshStorage.get(email);
+            if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
+                final User user = (User) userService.loadUserByUsername(email);
+                final String accessToken = jwtProvider.generateAccessToken(user);
+                final String newRefreshToken = jwtProvider.generateRefreshToken(user);
+                refreshStorage.put(user.getEmail(), newRefreshToken);
+                return new JwtResponseDto(accessToken, newRefreshToken);
+            }
+        }
+        throw new AuthenticationException("Invalid JWT token");
     }
 }

@@ -4,8 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.bookstore.dto.jwt.JwtResponseDto;
+import org.example.bookstore.dto.jwt.RefreshJwtRequestDto;
 import org.example.bookstore.dto.user.UserLoginRequestDto;
-import org.example.bookstore.dto.user.UserLoginResponseDto;
 import org.example.bookstore.dto.user.UserRegistrationRequestDto;
 import org.example.bookstore.dto.user.UserResponseDto;
 import org.example.bookstore.exception.RegistrationException;
@@ -27,8 +28,8 @@ public class AuthenticationController {
     @Operation(summary = "Authentication",
             description = "Authentication users by email and password")
     @PostMapping("/login")
-    public UserLoginResponseDto login(@RequestBody @Valid UserLoginRequestDto request) {
-        return authenticationService.authenticate(request);
+    public JwtResponseDto login(@RequestBody @Valid UserLoginRequestDto request) {
+        return authenticationService.login(request);
     }
 
     @Operation(summary = "Registration", description = "Registration of new users")
@@ -36,5 +37,19 @@ public class AuthenticationController {
     public UserResponseDto register(@RequestBody @Valid UserRegistrationRequestDto request)
             throws RegistrationException {
         return userService.register(request);
+    }
+
+    @Operation(summary = "Getting a new access token",
+            description = "Getting a new access token using a refresh token")
+    @PostMapping("/token")
+    public JwtResponseDto getNewAccessToken(@RequestBody RefreshJwtRequestDto request) {
+        return authenticationService.getAccessToken(request.refreshToken());
+    }
+
+    @Operation(summary = "Regeneration of refresh and access tokens",
+            description = "Require a valid access token ")
+    @PostMapping("/refresh")
+    public JwtResponseDto getNewRefreshToken(@RequestBody RefreshJwtRequestDto request) {
+        return authenticationService.refresh(request.refreshToken());
     }
 }

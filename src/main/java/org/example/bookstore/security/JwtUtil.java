@@ -1,53 +1,40 @@
 package org.example.bookstore.security;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.util.Date;
-import org.springframework.beans.factory.annotation.Value;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.example.bookstore.model.Role;
+import org.example.bookstore.repository.RoleRepository;
 import org.springframework.stereotype.Component;
 
 @Component
-public class JwtUtil {
-    @Value("${jwt.expiration}")
-    private long expiration;
-    private final Key secret;
+@RequiredArgsConstructor
+public final class JwtUtil {
+    private final RoleRepository roleRepository;
+    private final ObjectMapper objectMapper;
 
-    public JwtUtil(@Value("${jwt.secret}") String secretString) {
-        secret = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
+    public JwtAuthentication createAuthentication(Claims claims) {
+        final JwtAuthentication authentication = new JwtAuthentication();
+        authentication.setRoles(getRoles(claims));
+        authentication.setFirstName(claims.get("firstName", String.class));
+        authentication.setEmail(claims.getSubject());
+        return authentication;
     }
 
-    public String generateToken(String username) {
-        return Jwts.builder()
-                .subject(username)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(secret)
-                .compact();
-    }
-
-    public boolean isValidToken(String token) {
-        try {
-            Jws<Claims> claimsJws = Jwts.parser()
-                    .setSigningKey(secret)
-                    .build()
-                    .parseClaimsJws(token);
-            return !claimsJws.getBody().getExpiration().before(new Date());
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtException("Expired or invalid JWT token");
-        }
-    }
-
-    public String getUsername(String token) {
-        return Jwts.parser()
-                .setSigningKey(secret)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+    private Set<Role> getRoles(Claims claims) {
+        List<String> roles = objectMapper.convertValue(
+                claims.get("roles"),
+                new TypeReference<List<String>>() {}
+        );
+        return roles.stream()
+                .map(Role.RoleName::valueOf)
+                .map(roleRepository::findByName)
+                .map(Optional::orElseThrow)
+                .collect(Collectors.toSet());
     }
 }

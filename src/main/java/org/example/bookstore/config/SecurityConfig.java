@@ -29,16 +29,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         auth -> auth
                                 .requestMatchers(
-                                        "/auth/**",
+                                        "/auth/login",
+                                        "/auth/register",
+                                        "/auth/token",
                                         "/v3/api-docs/**",
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",
                                         "/swagger-resources/**",
                                         "/error/**"
-                                )
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated()
+                                ).permitAll()
+                                .anyRequest().authenticated()
                 )
                 .sessionManagement(session
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

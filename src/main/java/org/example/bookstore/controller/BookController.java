@@ -7,8 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.bookstore.dto.book.BookDto;
 import org.example.bookstore.dto.book.BookSearchParametersDto;
 import org.example.bookstore.dto.book.CreateBookRequestDto;
+import org.example.bookstore.dto.page.PageDto;
+import org.example.bookstore.mapper.PageMapper;
 import org.example.bookstore.service.BookService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,14 +29,15 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Book management", description = "Endpoints for managing books")
 public class BookController {
     private final BookService bookService;
+    private final PageMapper pageMapper;
 
     @Operation(summary = "Get all books", description = "Get a list of all available books. "
             + "Pagination: add a ? followed by the query {page}={value}&{size}={value} "
             + "For example: /books?page=0&size=10 "
             + "Sorting: add & followed by {sort}={field} or {sort}={field, DESC}")
     @GetMapping
-    public Page<BookDto> getAll(Pageable pageable) {
-        return bookService.findAll(pageable);
+    public PageDto<BookDto> getAll(Pageable pageable) {
+        return pageMapper.toDto(bookService.findAll(pageable));
     }
 
     @Operation(summary = "Get a book by id", description = "Get a book by id")
@@ -77,8 +79,8 @@ public class BookController {
             + "?titles=harry potter and the philosopher's stone&page=0&size=10 "
             + "Sorting: add & followed by {sort}={field} or {sort}={field, DESC}")
     @GetMapping("/search")
-    public Page<BookDto> searchBooks(@Valid BookSearchParametersDto parametersDto,
-                                     Pageable pageable) {
-        return bookService.search(parametersDto, pageable);
+    public PageDto<BookDto> searchBooks(@Valid BookSearchParametersDto parametersDto,
+                                        Pageable pageable) {
+        return pageMapper.toDto(bookService.search(parametersDto, pageable));
     }
 }
