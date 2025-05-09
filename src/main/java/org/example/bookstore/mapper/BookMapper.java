@@ -1,9 +1,9 @@
 package org.example.bookstore.mapper;
 
 import org.example.bookstore.config.MapperConfig;
-import org.example.bookstore.dto.BookDto;
-import org.example.bookstore.dto.BookSearchParametersDto;
-import org.example.bookstore.dto.CreateBookRequestDto;
+import org.example.bookstore.dto.book.BookDto;
+import org.example.bookstore.dto.book.BookSearchParametersDto;
+import org.example.bookstore.dto.book.CreateBookRequestDto;
 import org.example.bookstore.model.Book;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
