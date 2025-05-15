@@ -1,6 +1,7 @@
 package bookstore.service.impl;
 
 import static bookstore.exception.EntityNotFoundException.entityNotFoundException;
+import static bookstore.service.impl.CategoryServiceImpl.CATEGORY_NOT_FOUND_MESSAGE;
 
 import bookstore.dto.book.BookDto;
 import bookstore.dto.book.BookDtoWithoutCategoryIds;
@@ -21,20 +22,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
-    private static final String BOOK_NOT_FOUND_MESSAGE = "A book with id {0} does not exist";
+    protected static final String BOOK_NOT_FOUND_MESSAGE = "A book with id {0} does not exist";
     private static final String BOOK_ALREADY_EXISTS_MESSAGE =
             "A book with isbn {0} already exists";
-    private static final String CATEGORY_NOT_FOUND_MESSAGE =
-            "A category with id {0} does not exist";
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
     private final BookSpecificationBuilder bookSpecificationBuilder;
     private final CategoryRepository categoryRepository;
 
+    @Transactional
     @Override
     public BookDto save(CreateBookRequestDto bookDto) {
         Book book = bookMapper.toModel(bookDto);
@@ -48,8 +49,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto findById(Long id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(entityNotFoundException(BOOK_NOT_FOUND_MESSAGE, id));
+        Book book = getBookById(id);
         return bookMapper.toDto(book);
     }
 
@@ -59,15 +59,16 @@ public class BookServiceImpl implements BookService {
                 .map(bookMapper::toDto);
     }
 
+    @Transactional
     @Override
     public BookDto update(UpdateBookRequestDto requestDto, Long id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(entityNotFoundException(BOOK_NOT_FOUND_MESSAGE, id));
+        Book book = getBookById(id);
         checkCategoriesForExistingOrThrow(requestDto.categoryIds());
         bookMapper.updateBookFromDto(book, requestDto);
         return bookMapper.toDto(bookRepository.save(book));
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         if (!bookRepository.existsById(id)) {
@@ -107,5 +108,10 @@ public class BookServiceImpl implements BookService {
                 throw new EntityNotFoundException(CATEGORY_NOT_FOUND_MESSAGE, id);
             }
         }
+    }
+
+    private Book getBookById(Long id) {
+        return bookRepository.findById(id)
+                .orElseThrow(entityNotFoundException(BOOK_NOT_FOUND_MESSAGE, id));
     }
 }

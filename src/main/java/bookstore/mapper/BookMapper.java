@@ -41,7 +41,7 @@ public interface BookMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "categories", ignore = true)
-    @Mapping(target = "isbn", ignore = true)
+    @Mapping(target = "isbn", source = "isbn", qualifiedByName = "formatIsbn")
     void updateBookFromDto(@MappingTarget Book book, UpdateBookRequestDto requestDto);
 
     @AfterMapping

@@ -1,7 +1,9 @@
 package bookstore.security;
 
 import bookstore.model.Role;
+import bookstore.model.User;
 import bookstore.repository.RoleRepository;
+import bookstore.service.UserService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -14,16 +16,18 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public final class JwtUtil {
+public class JwtUtil {
     private final RoleRepository roleRepository;
     private final ObjectMapper objectMapper;
+    private final UserService userService;
 
     public JwtAuthentication createAuthentication(Claims claims) {
-        final JwtAuthentication authentication = new JwtAuthentication();
-        authentication.setRoles(getRoles(claims));
-        authentication.setFirstName(claims.get("firstName", String.class));
-        authentication.setEmail(claims.getSubject());
-        return authentication;
+        return JwtAuthentication.builder()
+                .roles(getRoles(claims))
+                .firstName(claims.get("firstName", String.class))
+                .email(claims.getSubject())
+                .user((User) userService.loadUserByUsername(claims.getSubject()))
+                .build();
     }
 
     private Set<Role> getRoles(Claims claims) {

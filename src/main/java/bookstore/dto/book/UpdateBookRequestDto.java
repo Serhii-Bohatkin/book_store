@@ -7,6 +7,7 @@ import java.util.List;
 public record UpdateBookRequestDto(
         String title,
         String author,
+        String isbn,
         @Positive
         BigDecimal price,
         String description,

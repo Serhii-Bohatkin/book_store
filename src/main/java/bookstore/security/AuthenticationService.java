@@ -30,7 +30,6 @@ public class AuthenticationService {
         final String refreshToken = jwtProvider.generateRefreshToken(user);
         refreshStorage.put(user.getEmail(), refreshToken);
         return new JwtResponseDto(accessToken, refreshToken);
-
     }
 
     public JwtResponseDto getAccessToken(@NonNull String refreshToken) {

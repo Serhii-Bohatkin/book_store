@@ -1,6 +1,7 @@
 package bookstore.repository;
 
 import bookstore.model.Book;
+import java.util.Optional;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,11 @@ public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificat
     @Query("SELECT DISTINCT b FROM Book b JOIN b.categories c WHERE c.id = :categoryId")
     Page<Book> findAllByCategoryId(Long categoryId, Pageable pageable);
 
-    @Override
+    @NonNull
     @EntityGraph(attributePaths = "categories")
     Page<Book> findAll(@NonNull Pageable pageable);
+
+    @NonNull
+    @EntityGraph(attributePaths = "categories")
+    Optional<Book> findById(@NonNull Long id);
 }

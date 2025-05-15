@@ -1,0 +1,41 @@
+package bookstore.mapper;
+
+import bookstore.config.MapperConfig;
+import bookstore.dto.cartitem.CartItemRequestDto;
+import bookstore.dto.cartitem.CartItemResponseDto;
+import bookstore.dto.cartitem.UpdateCartItemDto;
+import bookstore.model.Book;
+import bookstore.model.CartItem;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
+@Mapper(config = MapperConfig.class)
+public interface CartItemMapper {
+    default CartItemResponseDto toDto(CartItem cartItem) {
+        return new CartItemResponseDto(
+                cartItem.getId(),
+                cartItem.getBookId(),
+                cartItem.getBookTitle(),
+                cartItem.getQuantity()
+        );
+    }
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "shoppingCart", ignore = true)
+    @Mapping(target = "book", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
+    CartItem toModel(CartItemRequestDto requestDto);
+
+    @AfterMapping
+    default void setBook(@MappingTarget CartItem item, CartItemRequestDto requestDto) {
+        item.setBook(new Book(requestDto.bookId()));
+    }
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "shoppingCart", ignore = true)
+    @Mapping(target = "book", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
+    void update(@MappingTarget CartItem cartItem, UpdateCartItemDto updateDto);
+}
