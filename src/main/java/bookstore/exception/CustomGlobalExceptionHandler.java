@@ -1,10 +1,14 @@
 package bookstore.exception;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 import lombok.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,10 +26,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler {
-    public static final String TIMESTAMP = "timestamp";
-    public static final String MESSAGE = "message";
-    public static final String ERROR = "error";
-    public static final String STATUS = "status";
+    private static final String TIMESTAMP = "timestamp";
+    private static final String MESSAGE = "message";
+    private static final String ERROR = "error";
+    private static final String STATUS = "status";
+    private static final String ERRORS = "errors";
+    private static final String SPACE = " ";
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -40,8 +46,21 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
                 .getAllErrors().stream()
                 .map(this::getErrorMessage)
                 .toList();
-        body.put("errors", errors);
+        body.put(ERRORS, errors);
         return new ResponseEntity<>(body, headers, status);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<Object> handleConstraintViolationException(
+            ConstraintViolationException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put(TIMESTAMP, LocalDateTime.now());
+        body.put(STATUS, HttpStatus.BAD_REQUEST);
+        List<String> errors = ex.getConstraintViolations().stream()
+                .map(this::getErrorMessage)
+                .toList();
+        body.put(ERRORS, errors);
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -84,11 +103,26 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    protected ResponseEntity<Object> handleIllegalStateException(
+            IllegalStateException ex) {
+        Map<String, Object> body = createHttpResponseBody(HttpStatus.CONFLICT, ex);
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
+    private String getErrorMessage(ConstraintViolation<?> violation) {
+        String fieldName = StreamSupport.stream(violation.getPropertyPath().spliterator(), false)
+                .reduce((first, second) -> second)
+                .map(Path.Node::getName)
+                .orElse("field");
+        return fieldName + SPACE + violation.getMessage();
+    }
+
     private String getErrorMessage(ObjectError e) {
         if (e instanceof FieldError fieldError) {
             String field = fieldError.getField();
             String message = fieldError.getDefaultMessage();
-            return field + " " + message;
+            return field + SPACE + message;
         }
         return e.getDefaultMessage();
     }

@@ -1,8 +1,10 @@
 package bookstore.security;
 
 import bookstore.model.Role;
+import bookstore.model.User;
 import java.util.Collection;
 import java.util.Set;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.Authentication;
@@ -10,10 +12,13 @@ import org.springframework.security.core.GrantedAuthority;
 
 @Getter
 @Setter
+@Builder
 public class JwtAuthentication implements Authentication {
     private boolean authenticated;
+    private Long userId;
     private String email;
     private String firstName;
+    private User user;
     private Set<Role> roles;
 
     @Override
@@ -23,7 +28,7 @@ public class JwtAuthentication implements Authentication {
 
     @Override
     public Object getCredentials() {
-        return null;
+        return user.getPassword();
     }
 
     @Override
@@ -33,7 +38,7 @@ public class JwtAuthentication implements Authentication {
 
     @Override
     public Object getPrincipal() {
-        return email;
+        return user;
     }
 
     @Override

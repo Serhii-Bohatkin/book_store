@@ -5,7 +5,6 @@ import bookstore.dto.jwt.RefreshJwtRequestDto;
 import bookstore.dto.user.UserLoginRequestDto;
 import bookstore.dto.user.UserRegistrationRequestDto;
 import bookstore.dto.user.UserResponseDto;
-import bookstore.exception.RegistrationException;
 import bookstore.security.AuthenticationService;
 import bookstore.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,8 +33,7 @@ public class AuthenticationController {
 
     @Operation(summary = "Registration", description = "Registration of new users")
     @PostMapping("/register")
-    public UserResponseDto register(@RequestBody @Valid UserRegistrationRequestDto request)
-            throws RegistrationException {
+    public UserResponseDto register(@RequestBody @Valid UserRegistrationRequestDto request) {
         return userService.register(request);
     }
 

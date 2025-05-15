@@ -15,11 +15,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
-    private static final String CATEGORY_NOT_FOUND_MESSAGE =
+    protected static final String CATEGORY_NOT_FOUND_MESSAGE =
             "A category with id {0} does not exist";
     private static final String CATEGORY_ALREADY_EXISTS_MESSAGE =
             "A category with name {0} already exists";
@@ -39,6 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toDto(category);
     }
 
+    @Transactional
     @Override
     public CategoryDto save(CreateCategoryRequestDto requestDto) {
         if (categoryRepository.existsByName(requestDto.name())) {
@@ -49,6 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toDto(savedCategory);
     }
 
+    @Transactional
     @Override
     public CategoryDto update(Long id, UpdateCategoryRequestDto requestDto) {
         Category category = categoryRepository.findById(id)
@@ -57,6 +60,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toDto(categoryRepository.save(category));
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         if (!categoryRepository.existsById(id)) {
@@ -64,5 +68,4 @@ public class CategoryServiceImpl implements CategoryService {
         }
         categoryRepository.deleteById(id);
     }
-
 }

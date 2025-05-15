@@ -10,10 +10,12 @@ import bookstore.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/books")
 @RequiredArgsConstructor
 @Tag(name = "Book management", description = "Endpoints for managing books")
+@Validated
 public class BookController {
     private final BookService bookService;
     private final PageMapper pageMapper;
@@ -42,9 +45,9 @@ public class BookController {
     }
 
     @Operation(summary = "Get a book by id", description = "Get a book by id")
-    @GetMapping("/{id}")
-    public BookDto getBookById(@PathVariable Long id) {
-        return bookService.findById(id);
+    @GetMapping("/{bookId}")
+    public BookDto getBookById(@PathVariable @Min(1) Long bookId) {
+        return bookService.findById(bookId);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -57,18 +60,18 @@ public class BookController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Update book ", description = "Update the book by id")
-    @PatchMapping("/{id}")
+    @PatchMapping("/{bookId}")
     public BookDto updateBook(@RequestBody @Valid UpdateBookRequestDto requestDto,
-                              @PathVariable Long id) {
-        return bookService.update(requestDto, id);
+                              @PathVariable @Min(1) Long bookId) {
+        return bookService.update(requestDto, bookId);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Delete book", description = "Delete the book by id")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{bookId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable Long id) {
-        bookService.deleteById(id);
+    public void deleteById(@PathVariable @Min(1) Long bookId) {
+        bookService.deleteById(bookId);
     }
 
     @Operation(summary = "Search book", description

@@ -11,10 +11,12 @@ import bookstore.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/categories")
 @RequiredArgsConstructor
 @Tag(name = "Category management", description = "Endpoints for managing categories")
+@Validated
 public class CategoryController {
     private final CategoryService categoryService;
     private final PageMapper pageMapper;
@@ -53,31 +56,31 @@ public class CategoryController {
     }
 
     @Operation(summary = "Get a category by id", description = "Get a category by id")
-    @GetMapping("/{id}")
-    public CategoryDto getCategoryById(@PathVariable Long id) {
-        return categoryService.getById(id);
+    @GetMapping("/{categoryId}")
+    public CategoryDto getCategoryById(@PathVariable @Min(1) Long categoryId) {
+        return categoryService.getById(categoryId);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Update category", description = "Update category by id")
-    @PatchMapping("/{id}")
-    public CategoryDto updateCategory(@PathVariable Long id,
+    @PatchMapping("/{categoryId}")
+    public CategoryDto updateCategory(@PathVariable @Min(1) Long categoryId,
                                       @RequestBody @Valid UpdateCategoryRequestDto requestDto) {
-        return categoryService.update(id, requestDto);
+        return categoryService.update(categoryId, requestDto);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Delete category", description = "Delete a category by id")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCategory(@PathVariable Long id) {
-        categoryService.deleteById(id);
+    public void deleteCategory(@PathVariable @Min(1) Long categoryId) {
+        categoryService.deleteById(categoryId);
     }
 
     @Operation(summary = "Find books by category", description = "Find all books by category id")
-    @GetMapping("/{id}/books")
+    @GetMapping("/{categoryId}/books")
     public PageDto<BookDtoWithoutCategoryIds> getBooksByCategoryId(
-            @PathVariable Long id, Pageable pageable) {
-        return pageMapper.toDto(bookService.findByCategoryId(id, pageable));
+            @PathVariable @Min(1) Long categoryId, Pageable pageable) {
+        return pageMapper.toDto(bookService.findByCategoryId(categoryId, pageable));
     }
 }
