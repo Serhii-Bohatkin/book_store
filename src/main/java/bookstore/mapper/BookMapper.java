@@ -20,6 +20,7 @@ import org.mapstruct.Named;
 @Mapper(config = MapperConfig.class)
 public interface BookMapper {
     @Mapping(target = "categoryIds", source = "categories", qualifiedByName = "setCategoryIds")
+    @Mapping(target = "bookId", source = "id")
     BookDto toDto(Book book);
 
     @Named("setCategoryIds")
@@ -60,6 +61,7 @@ public interface BookMapper {
         book.setCategories(categories);
     }
 
+    @Mapping(target = "bookId", source = "id")
     BookDtoWithoutCategoryIds toDtoWithoutCategories(Book book);
 
     @Named("formatIsbn")

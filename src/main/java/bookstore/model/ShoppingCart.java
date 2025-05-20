@@ -9,9 +9,12 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,7 +38,7 @@ public class ShoppingCart {
     private User user;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "shoppingCart")
-    private Set<CartItem> cartItems;
+    private Set<CartItem> cartItems = new HashSet<>();
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
@@ -50,5 +53,24 @@ public class ShoppingCart {
         return cartItems.stream()
                 .filter(cartItem -> Objects.equals(cartItem.getId(), itemId))
                 .findFirst();
+    }
+
+    public Order createOrder(String address) {
+        return new Order()
+                .setUser(user)
+                .setTotal(calculateCostOfShoppingCart())
+                .setShippingAddress(address);
+    }
+
+    public Set<OrderItem> createOrderItems(Long orderId) {
+        return cartItems.stream()
+                .map(cartItem -> cartItem.createOrderItem(orderId))
+                .collect(Collectors.toSet());
+    }
+
+    private BigDecimal calculateCostOfShoppingCart() {
+        return cartItems.stream()
+                .map(CartItem::calculateCostOfCartItem)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

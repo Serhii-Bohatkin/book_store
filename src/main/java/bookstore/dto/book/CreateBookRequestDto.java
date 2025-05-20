@@ -12,6 +12,7 @@ public record CreateBookRequestDto(
         String title,
         @NotBlank
         String author,
+        @NotNull
         @Isbn
         String isbn,
         @NotNull

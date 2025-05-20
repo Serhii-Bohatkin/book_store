@@ -1,7 +1,7 @@
 package bookstore.controller;
 
+import bookstore.dto.cartitem.CartItemDto;
 import bookstore.dto.cartitem.CartItemRequestDto;
-import bookstore.dto.cartitem.CartItemResponseDto;
 import bookstore.dto.cartitem.UpdateCartItemDto;
 import bookstore.dto.shoppingcart.ShoppingCartDto;
 import bookstore.model.User;
@@ -41,17 +41,19 @@ public class ShoppingCartController {
     @Operation(summary = "Add a book to the current user's cart",
             description = "Add a book to the current user's cart")
     @PostMapping
-    public CartItemResponseDto addBook(@AuthenticationPrincipal User user,
-                                       @RequestBody @Valid CartItemRequestDto requestDto) {
+    public CartItemDto addBook(@AuthenticationPrincipal User user,
+                               @RequestBody @Valid CartItemRequestDto requestDto) {
         return shoppingCartService.addBook(user, requestDto);
     }
 
     @Operation(summary = "Update info about quantity books",
             description = "Update info about quantity books by item id")
     @PatchMapping("/items/{itemId}")
-    public CartItemResponseDto update(@AuthenticationPrincipal User user,
-                                      @PathVariable @Min(1) Long itemId,
-                                      @RequestBody @Valid UpdateCartItemDto updateCartItemDto) {
+    public CartItemDto updateCartItemQuantity(
+            @AuthenticationPrincipal User user,
+            @PathVariable @Min(1) Long itemId,
+            @RequestBody @Valid UpdateCartItemDto updateCartItemDto
+    ) {
         return shoppingCartService.update(user, itemId, updateCartItemDto);
     }
 

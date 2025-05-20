@@ -1,8 +1,8 @@
 package bookstore.mapper;
 
 import bookstore.config.MapperConfig;
+import bookstore.dto.cartitem.CartItemDto;
 import bookstore.dto.cartitem.CartItemRequestDto;
-import bookstore.dto.cartitem.CartItemResponseDto;
 import bookstore.dto.cartitem.UpdateCartItemDto;
 import bookstore.model.Book;
 import bookstore.model.CartItem;
@@ -13,8 +13,8 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(config = MapperConfig.class)
 public interface CartItemMapper {
-    default CartItemResponseDto toDto(CartItem cartItem) {
-        return new CartItemResponseDto(
+    default CartItemDto toDto(CartItem cartItem) {
+        return new CartItemDto(
                 cartItem.getId(),
                 cartItem.getBookId(),
                 cartItem.getBookTitle(),

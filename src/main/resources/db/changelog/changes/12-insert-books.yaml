@@ -1,0 +1,114 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-books
+      author: Serhii Bohatkin
+      changes:
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, valueNumeric: 1 }
+              - column: { name: title, value: "1984" }
+              - column: { name: author, value: "George Orwell" }
+              - column: { name: isbn, value: "9780451524935" }
+              - column: { name: price, valueNumeric: 9.99 }
+              - column: { name: description, value: "Dystopian novel about totalitarian regime of Big Brother." }
+              - column: { name: cover_image, value: "https://upload.wikimedia.org/wikipedia/commons/5/51/1984_first_edition_cover.jpg" }
+
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, valueNumeric: 2 }
+              - column: { name: title, value: "A Brief History of Time" }
+              - column: { name: author, value: "Stephen Hawking" }
+              - column: { name: isbn, value: "9780553380163" }
+              - column: { name: price, valueNumeric: 14.99 }
+              - column: { name: description, value: "Non-fiction book explaining cosmology for general audience." }
+              - column: { name: cover_image, value: "https://upload.wikimedia.org/wikipedia/en/a/a3/BriefHistoryTime.jpg" }
+
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, valueNumeric: 3 }
+              - column: { name: title, value: "Harry Potter and the Philosopher's Stone" }
+              - column: { name: author, value: "J.K. Rowling" }
+              - column: { name: isbn, value: "9780747532699" }
+              - column: { name: price, valueNumeric: 12.99 }
+              - column: { name: description, value: "Fantasy novel about a young wizard's first year at Hogwarts." }
+              - column: { name: cover_image, value: "https://upload.wikimedia.org/wikipedia/en/6/6b/Harry_Potter_and_the_Philosopher%27s_Stone_Book_Cover.jpg" }
+
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, valueNumeric: 4 }
+              - column: { name: title, value: "Pride and Prejudice" }
+              - column: { name: author, value: "Jane Austen" }
+              - column: { name: isbn, value: "9780141439518" }
+              - column: { name: price, valueNumeric: 8.99 }
+              - column: { name: description, value: "Classic romantic novel set in early 19th-century England." }
+              - column: { name: cover_image, value: "https://upload.wikimedia.org/wikipedia/commons/1/17/PrideAndPrejudiceTitlePage.jpg" }
+
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, valueNumeric: 5 }
+              - column: { name: title, value: "The Shining" }
+              - column: { name: author, value: "Stephen King" }
+              - column: { name: isbn, value: "9780307743657" }
+              - column: { name: price, valueNumeric: 10.50 }
+              - column: { name: description, value: "Psychological horror novel set in an isolated hotel." }
+              - column: { name: cover_image, value: "https://upload.wikimedia.org/wikipedia/commons/0/09/The_Shining_%281977%29_front_cover%2C_first_edition.jpg" }
+
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, valueNumeric: 6 }
+              - column: { name: title, value: "The Diary of a Young Girl" }
+              - column: { name: author, value: "Anne Frank" }
+              - column: { name: isbn, value: "9780553296983" }
+              - column: { name: price, valueNumeric: 11.99 }
+              - column: { name: description, value: "Diary written by Anne Frank while hiding during the Nazi occupation." }
+              - column: { name: cover_image, value: "https://upload.wikimedia.org/wikipedia/en/4/47/Het_Achterhuis_%28Diary_of_Anne_Frank%29_-_front_cover%2C_first_edition.jpg" }
+
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, valueNumeric: 7 }
+              - column: { name: title, value: "The Da Vinci Code" }
+              - column: { name: author, value: "Dan Brown" }
+              - column: { name: isbn, value: "9780307474278" }
+              - column: { name: price, valueNumeric: 10.99 }
+              - column: { name: description, value: "Mystery thriller novel that explores symbology and secret societies." }
+              - column: { name: cover_image, value: "https://upload.wikimedia.org/wikipedia/en/6/6b/DaVinciCode.jpg" }
+
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, valueNumeric: 8 }
+              - column: { name: title, value: "Sapiens: A Brief History of Humankind" }
+              - column: { name: author, value: "Yuval Noah Harari" }
+              - column: { name: isbn, value: "9780062316097" }
+              - column: { name: price, valueNumeric: 16.00 }
+              - column: { name: description, value: "Explores the history and evolution of Homo sapiens." }
+              - column: { name: cover_image, value: "https://upload.wikimedia.org/wikipedia/en/0/06/%E1%B8%B2itsur_toldot_ha-enoshut.jpg" }
+
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, valueNumeric: 9 }
+              - column: { name: title, value: "Dune" }
+              - column: { name: author, value: "Frank Herbert" }
+              - column: { name: isbn, value: "9780441172719" }
+              - column: { name: price, valueNumeric: 13.50 }
+              - column: { name: description, value: "Epic science fiction novel set on the desert planet Arrakis." }
+              - column: { name: cover_image, value: "https://upload.wikimedia.org/wikipedia/en/d/de/Dune-Frank_Herbert_%281965%29_First_edition.jpg" }
+
+        - insert:
+            tableName: books
+            columns:
+              - column: { name: id, valueNumeric: 10 }
+              - column: { name: title, value: "The 7 Habits of Highly Effective People" }
+              - column: { name: author, value: "Stephen R. Covey" }
+              - column: { name: isbn, value: "9780743269513" }
+              - column: { name: price, valueNumeric: 15.75 }
+              - column: { name: description, value: "Self-help book offering principles for personal and professional effectiveness." }
+              - column: { name: cover_image, value: "https://upload.wikimedia.org/wikipedia/en/a/a2/The_7_Habits_of_Highly_Effective_People.jpg" }

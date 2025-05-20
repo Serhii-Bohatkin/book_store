@@ -11,6 +11,7 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(config = MapperConfig.class)
 public interface UserMapper {
+    @Mapping(target = "userId", source = "id")
     UserResponseDto toDto(User user);
 
     @Mapping(target = "id", ignore = true)
@@ -18,7 +19,7 @@ public interface UserMapper {
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "authorities", ignore = true)
-    @Mapping(target = "authorityList", ignore = true)
+    @Mapping(target = "authoritiesNamesList", ignore = true)
     User toModel(UserRegistrationRequestDto requestDto);
 
     @Mapping(target = "id", ignore = true)
@@ -27,7 +28,7 @@ public interface UserMapper {
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "authorities", ignore = true)
-    @Mapping(target = "authorityList", ignore = true)
+    @Mapping(target = "authoritiesNamesList", ignore = true)
     User toModel(UserUpdateDto updateDto);
 
     @Mapping(target = "id", ignore = true)
@@ -36,6 +37,6 @@ public interface UserMapper {
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "authorities", ignore = true)
-    @Mapping(target = "authorityList", ignore = true)
+    @Mapping(target = "authoritiesNamesList", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateDto updateDto);
 }
