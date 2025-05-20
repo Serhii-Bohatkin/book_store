@@ -27,7 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    public static final String USER_NOT_FOUND_MESSAGE = "A user with email %s already exists";
+    private static final String USER_ALREADY_EXISTS_MESSAGE =
+            "A user with email {0} already exists";
+    private static final String USER_NOT_FOUND_MESSAGE = "A user with email %s does not exist";
+    private static final String ROLE_NOT_FOUND_MESSAGE = "A role with name {0} does not exist";
+    private static final String USER_ALREADY_HAS_ROLE_MESSAGE =
+            "User with email %s already has the %s role";
+    private static final String INCORRECT_INVITE_CODE_MESSAGE = "{0} is an incorrect invite code";
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -58,8 +64,8 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto addRole(String email, Role.RoleName roleName) {
         User user = (User) loadUserByUsername(email);
         if (user.hasRole(roleName)) {
-            throw new IllegalStateException(String.format(
-                    "User with email %s already has the %s role", email, roleName));
+            throw new IllegalStateException(
+                    String.format(USER_ALREADY_HAS_ROLE_MESSAGE, email, roleName));
         }
         Role role = getRoleByName(roleName);
         user.addRole(role);
@@ -83,7 +89,7 @@ public class UserServiceImpl implements UserService {
         roles.add(getRoleByName(Role.RoleName.USER));
         if (Objects.equals(adminProperties.getEmail(), email)) {
             if (!Objects.equals(inviteCode, adminProperties.getInviteCode())) {
-                throw new RegistrationException("Invalid inviteCode");
+                throw new RegistrationException(INCORRECT_INVITE_CODE_MESSAGE, inviteCode);
             }
             roles.add(getRoleByName(Role.RoleName.ADMIN));
         }
@@ -92,12 +98,12 @@ public class UserServiceImpl implements UserService {
 
     private Role getRoleByName(Role.RoleName roleName) {
         return roleRepository.findByName(roleName).orElseThrow(
-                entityNotFoundException("Can't find a role with name {0}", roleName));
+                entityNotFoundException(ROLE_NOT_FOUND_MESSAGE, roleName));
     }
 
     private void throwExceptionIfUserExists(String email) {
         if (userRepository.existsByEmail(email)) {
-            throw new RegistrationException(USER_NOT_FOUND_MESSAGE, email);
+            throw new RegistrationException(USER_ALREADY_EXISTS_MESSAGE, email);
         }
     }
 }

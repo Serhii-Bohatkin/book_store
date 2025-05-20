@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: create-cart_items-table
+      id: create-orders-table
       author: Serhii Bohatkin
       changes:
         - createTable:
-            tableName: cart_items
+            tableName: orders
             columns:
               - column:
                   name: id
@@ -14,18 +14,28 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: shopping_cart_id
+                  name: user_id
                   type: bigint
                   constraints:
                     nullable: false
               - column:
-                  name: book_id
-                  type: bigint
+                  name: status
+                  type: varchar(255)
                   constraints:
                     nullable: false
               - column:
-                  name: quantity
-                  type: integer
+                  name: total
+                  type: decimal(7,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: order_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: shipping_address
+                  type: varchar(255)
                   constraints:
                     nullable: false
               - column:
@@ -36,15 +46,8 @@ databaseChangeLog:
                     nullable: false
 
         - addForeignKeyConstraint:
-            baseTableName: cart_items
-            baseColumnNames: shopping_cart_id
-            constraintName: fk_cart_items_shopping_carts
-            referencedTableName: shopping_carts
-            referencedColumnNames: id
-
-        - addForeignKeyConstraint:
-            baseTableName: cart_items
-            baseColumnNames: book_id
-            constraintName: fk_cart_items_books
-            referencedTableName: books
+            baseTableName: orders
+            baseColumnNames: user_id
+            constraintName: fk_orders_users
+            referencedTableName: users
             referencedColumnNames: id

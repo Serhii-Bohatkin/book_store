@@ -1,0 +1,65 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-categories
+      author: Serhii Bohatkin
+      changes:
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 1 }
+              - column: { name: name, value: "Fiction" }
+              - column: { name: description, value: "Fictional books" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 2 }
+              - column: { name: name, value: "Non-fiction" }
+              - column: { name: description, value: "Non-fictional books" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 3 }
+              - column: { name: name, value: "Fantasy" }
+              - column: { name: description, value: "Fantasy books" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 4 }
+              - column: { name: name, value: "Science Fiction" }
+              - column: { name: description, value: "Sci-Fi books" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 5 }
+              - column: { name: name, value: "Romance" }
+              - column: { name: description, value: "Romantic books" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 6 }
+              - column: { name: name, value: "Mystery" }
+              - column: { name: description, value: "Mystery books" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 7 }
+              - column: { name: name, value: "Biography" }
+              - column: { name: description, value: "Biographies" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 8 }
+              - column: { name: name, value: "History" }
+              - column: { name: description, value: "Historical books" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 9 }
+              - column: { name: name, value: "Horror" }
+              - column: { name: description, value: "Horror stories" }
+        - insert:
+            tableName: categories
+            columns:
+              - column: { name: id, valueNumeric: 10 }
+              - column: { name: name, value: "Self-help" }
+              - column: { name: description, value: "Self-help books" }

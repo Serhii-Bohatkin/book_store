@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record BookDto(
-        Long id,
+        Long bookId,
         String title,
         String author,
         String isbn,

@@ -49,8 +49,9 @@ public class Book {
     private String coverImage;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "books_categories", joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @JoinTable(name = "books_categories",
+            joinColumns = @JoinColumn(name = "book_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "category_id", nullable = false))
     private Set<Category> categories = new HashSet<>();
 
     @Column(name = "is_deleted", nullable = false)

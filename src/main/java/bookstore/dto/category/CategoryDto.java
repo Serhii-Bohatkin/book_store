@@ -1,7 +1,7 @@
 package bookstore.dto.category;
 
 public record CategoryDto(
-        Long id,
+        Long categoryId,
         String name,
         String description
 ) {

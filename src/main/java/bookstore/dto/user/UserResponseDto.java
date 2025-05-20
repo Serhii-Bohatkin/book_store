@@ -1,7 +1,7 @@
 package bookstore.dto.user;
 
 public record UserResponseDto(
-        Long id,
+        Long userId,
         String email,
         String firstName,
         String lastName,

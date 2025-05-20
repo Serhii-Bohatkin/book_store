@@ -8,7 +8,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  value: 1
+                  valueNumeric: 1
               - column:
                   name: name
                   value: USER
@@ -17,7 +17,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  value: 2
+                  valueNumeric: 2
               - column:
                   name: name
                   value: ADMIN

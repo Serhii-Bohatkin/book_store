@@ -40,16 +40,15 @@ public class BookServiceImpl implements BookService {
     public BookDto save(CreateBookRequestDto bookDto) {
         Book book = bookMapper.toModel(bookDto);
         if (bookRepository.existsByIsbn((book.getIsbn()))) {
-            throw new EntityAlreadyExistsException(
-                    BOOK_ALREADY_EXISTS_MESSAGE, book.getIsbn());
+            throw new EntityAlreadyExistsException(BOOK_ALREADY_EXISTS_MESSAGE, book.getIsbn());
         }
-        checkCategoriesForExistingOrThrow(bookDto.categoryIds());
+        throwExceptionIfCategoriesNotExist(bookDto.categoryIds());
         return bookMapper.toDto(bookRepository.save(book));
     }
 
     @Override
-    public BookDto findById(Long id) {
-        Book book = getBookById(id);
+    public BookDto findById(Long bookId) {
+        Book book = getBookOrThrow(bookId);
         return bookMapper.toDto(book);
     }
 
@@ -61,20 +60,20 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public BookDto update(UpdateBookRequestDto requestDto, Long id) {
-        Book book = getBookById(id);
-        checkCategoriesForExistingOrThrow(requestDto.categoryIds());
+    public BookDto update(UpdateBookRequestDto requestDto, Long bookId) {
+        throwExceptionIfCategoriesNotExist(requestDto.categoryIds());
+        Book book = getBookOrThrow(bookId);
         bookMapper.updateBookFromDto(book, requestDto);
         return bookMapper.toDto(bookRepository.save(book));
     }
 
     @Transactional
     @Override
-    public void deleteById(Long id) {
-        if (!bookRepository.existsById(id)) {
-            throw new EntityNotFoundException(BOOK_NOT_FOUND_MESSAGE, id);
+    public void deleteById(Long bookId) {
+        if (!bookRepository.existsById(bookId)) {
+            throw new EntityNotFoundException(BOOK_NOT_FOUND_MESSAGE, bookId);
         }
-        bookRepository.deleteById(id);
+        bookRepository.deleteById(bookId);
     }
 
     @Override
@@ -89,8 +88,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Page<BookDtoWithoutCategoryIds> findByCategoryId(Long id, Pageable pageable) {
-        return bookRepository.findAllByCategoryId(id, pageable)
+    public Page<BookDtoWithoutCategoryIds> findByCategoryId(Long categoryId, Pageable pageable) {
+        return bookRepository.findAllByCategoryId(categoryId, pageable)
                 .map(bookMapper::toDtoWithoutCategories);
     }
 
@@ -102,7 +101,7 @@ public class BookServiceImpl implements BookService {
                 && parametersDto.maxPrice() == null;
     }
 
-    private void checkCategoriesForExistingOrThrow(List<Long> categoryIds) {
+    private void throwExceptionIfCategoriesNotExist(List<Long> categoryIds) {
         for (Long id : categoryIds) {
             if (!categoryRepository.existsById(id)) {
                 throw new EntityNotFoundException(CATEGORY_NOT_FOUND_MESSAGE, id);
@@ -110,8 +109,8 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    private Book getBookById(Long id) {
-        return bookRepository.findById(id)
-                .orElseThrow(entityNotFoundException(BOOK_NOT_FOUND_MESSAGE, id));
+    private Book getBookOrThrow(Long bookId) {
+        return bookRepository.findById(bookId)
+                .orElseThrow(entityNotFoundException(BOOK_NOT_FOUND_MESSAGE, bookId));
     }
 }

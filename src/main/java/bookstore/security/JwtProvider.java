@@ -43,7 +43,7 @@ public class JwtProvider {
                         + accessExpirationInMinutes * MILLISECONDS_IN_A_MINUTE
                 ))
                 .signWith(jwtAccessSecret)
-                .claim("roles", user.getAuthorityList())
+                .claim("roles", user.getAuthoritiesNamesList())
                 .claim("firstName", user.getFirstName())
                 .compact();
     }

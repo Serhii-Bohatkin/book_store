@@ -34,9 +34,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto getById(Long id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(entityNotFoundException(CATEGORY_NOT_FOUND_MESSAGE, id));
+    public CategoryDto getById(Long categoryId) {
+        Category category = getCategoryOrThrow(categoryId);
         return categoryMapper.toDto(category);
     }
 
@@ -53,19 +52,23 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional
     @Override
-    public CategoryDto update(Long id, UpdateCategoryRequestDto requestDto) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(entityNotFoundException(CATEGORY_NOT_FOUND_MESSAGE, id));
+    public CategoryDto update(Long categoryId, UpdateCategoryRequestDto requestDto) {
+        Category category = getCategoryOrThrow(categoryId);
         categoryMapper.updateCategory(category, requestDto);
         return categoryMapper.toDto(categoryRepository.save(category));
     }
 
     @Transactional
     @Override
-    public void deleteById(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new EntityNotFoundException(CATEGORY_NOT_FOUND_MESSAGE, id);
+    public void deleteById(Long categoryId) {
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new EntityNotFoundException(CATEGORY_NOT_FOUND_MESSAGE, categoryId);
         }
-        categoryRepository.deleteById(id);
+        categoryRepository.deleteById(categoryId);
+    }
+
+    private Category getCategoryOrThrow(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(entityNotFoundException(CATEGORY_NOT_FOUND_MESSAGE, id));
     }
 }
