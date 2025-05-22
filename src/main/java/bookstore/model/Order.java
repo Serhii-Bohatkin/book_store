@@ -1,5 +1,6 @@
 package bookstore.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -53,7 +54,7 @@ public class Order {
     @Column(name = "shipping_address", nullable = false)
     private String shippingAddress;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.PERSIST)
     private Set<OrderItem> orderItems = new HashSet<>();
 
     @Column(name = "is_deleted", nullable = false)
@@ -61,6 +62,11 @@ public class Order {
 
     public Order(Long id) {
         this.id = id;
+    }
+
+    public void setOrderItems(Set<OrderItem> orderItems) {
+        this.orderItems = orderItems;
+        orderItems.forEach(orderItem -> orderItem.setOrder(this));
     }
 
     public enum Status {

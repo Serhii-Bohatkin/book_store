@@ -17,7 +17,6 @@ import bookstore.repository.BookRepository;
 import bookstore.repository.CartItemRepository;
 import bookstore.repository.ShoppingCartRepository;
 import bookstore.service.ShoppingCartService;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,54 +38,54 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public ShoppingCartDto getShoppingCart(User user) {
-        return cartMapper.toDto(getCartOrThrow(user.getId()));
+        return cartMapper.toDto(getCartByUserIdOrThrow(user.getId()));
     }
 
     @Transactional
     @Override
     public CartItemDto addBook(User user, CartItemRequestDto requestDto) {
-        ShoppingCart shoppingCart = getCartOrThrow(user.getId());
-        Optional<CartItem> itemFromCart = shoppingCart.findCartItemByBookId(requestDto.bookId());
-        if (itemFromCart.isPresent()) {
+        Long cartId = user.getId();
+        if (cartItemRepository.existsByShoppingCart_IdAndBook_Id(cartId, requestDto.bookId())) {
             throw new IllegalStateException(String.format(
                     BOOK_IS_ALREADY_IN_SHOPPING_CART_MESSAGE, requestDto.bookId()));
         }
-        CartItem cartItem = createNewCartItem(requestDto, shoppingCart);
-        cartItemRepository.save(cartItem);
-        return cartItemMapper.toDto(cartItem);
+        CartItem cartItem = createNewCartItem(requestDto, cartId);
+        return cartItemMapper.toDto(cartItemRepository.save(cartItem));
     }
 
     @Transactional
     @Override
     public CartItemDto update(User user, Long cartItemId, UpdateCartItemDto updateDto) {
-        ShoppingCart shoppingCart = getCartOrThrow(user.getId());
-        CartItem cartItem = shoppingCart.findCartItemById(cartItemId)
-                .orElseThrow(entityNotFoundException(CART_ITEM_NOT_FOUND_MESSAGE, cartItemId));
+        Long cartId = user.getId();
+        CartItem cartItem = getCartItemOrThrow(cartItemId, cartId);
         cartItemMapper.update(cartItem, updateDto);
-        cartItemRepository.save(cartItem);
-        return cartItemMapper.toDto(cartItem);
+        return cartItemMapper.toDto(cartItemRepository.save(cartItem));
     }
 
     @Transactional
     @Override
     public void deleteCartItemById(User user, Long itemId) {
-        ShoppingCart shoppingCart = getCartOrThrow(user.getId());
-        CartItem cartItem = shoppingCart.findCartItemById(itemId).orElseThrow(
-                entityNotFoundException(CART_ITEM_NOT_FOUND_MESSAGE, itemId));
+        Long cartId = user.getId();
+        CartItem cartItem = getCartItemOrThrow(itemId, cartId);
         cartItemRepository.delete(cartItem);
     }
 
-    private ShoppingCart getCartOrThrow(Long userId) {
+    private ShoppingCart getCartByUserIdOrThrow(Long userId) {
         return cartRepository.findById(userId).orElseThrow(
                 entityNotFoundException(SHOPPING_CART_NOT_FOUND_MESSAGE, userId));
     }
 
-    private CartItem createNewCartItem(CartItemRequestDto requestDto, ShoppingCart shoppingCart) {
+    private CartItem createNewCartItem(CartItemRequestDto requestDto, Long shoppingCartId) {
         Book book = bookRepository.findById(requestDto.bookId()).orElseThrow(
                 entityNotFoundException(BOOK_NOT_FOUND_MESSAGE, requestDto.bookId()));
         return cartItemMapper.toModel(requestDto)
                 .setBook(book)
                 .setQuantity(requestDto.quantity())
-                .setShoppingCart(shoppingCart);
+                .setShoppingCart(new ShoppingCart(shoppingCartId));
+    }
+
+    private CartItem getCartItemOrThrow(Long cartItemId, Long cartId) {
+        return cartItemRepository.findByIdAndShoppingCartId(cartItemId, cartId)
+                .orElseThrow(entityNotFoundException(CART_ITEM_NOT_FOUND_MESSAGE, cartItemId));
     }
 }

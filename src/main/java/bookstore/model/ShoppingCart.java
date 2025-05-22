@@ -11,10 +11,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,16 +40,8 @@ public class ShoppingCart {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
 
-    public Optional<CartItem> findCartItemByBookId(Long bookId) {
-        return cartItems.stream()
-                .filter(cartItem -> Objects.equals(cartItem.getBookId(), bookId))
-                .findFirst();
-    }
-
-    public Optional<CartItem> findCartItemById(Long itemId) {
-        return cartItems.stream()
-                .filter(cartItem -> Objects.equals(cartItem.getId(), itemId))
-                .findFirst();
+    public ShoppingCart(Long id) {
+        this.id = id;
     }
 
     public Order createOrder(String address) {
@@ -60,12 +49,6 @@ public class ShoppingCart {
                 .setUser(user)
                 .setTotal(calculateCostOfShoppingCart())
                 .setShippingAddress(address);
-    }
-
-    public Set<OrderItem> createOrderItems(Long orderId) {
-        return cartItems.stream()
-                .map(cartItem -> cartItem.createOrderItem(orderId))
-                .collect(Collectors.toSet());
     }
 
     private BigDecimal calculateCostOfShoppingCart() {
