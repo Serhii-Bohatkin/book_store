@@ -8,8 +8,10 @@ import bookstore.dto.order.OrderDto;
 import bookstore.dto.order.OrderStatusDto;
 import bookstore.dto.orderitem.OrderItemDto;
 import bookstore.exception.EntityNotFoundException;
+import bookstore.mapper.CartItemMapper;
 import bookstore.mapper.OrderItemMapper;
 import bookstore.mapper.OrderMapper;
+import bookstore.model.CartItem;
 import bookstore.model.Order;
 import bookstore.model.OrderItem;
 import bookstore.model.ShoppingCart;
@@ -21,6 +23,7 @@ import bookstore.repository.ShoppingCartRepository;
 import bookstore.service.OrderService;
 import jakarta.transaction.Transactional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,20 +43,19 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final CartItemRepository cartItemRepository;
     private final OrderItemMapper orderItemMapper;
+    private final CartItemMapper cartItemMapper;
 
     @Transactional
     @Override
     public OrderDto placeOrder(User user, OrderAddressDto addressDto) {
-        ShoppingCart cart = getCartOrThrow(user);
-        if (cart.getCartItems().isEmpty()) {
-            throw new IllegalStateException(EMPTY_SHOPPING_CART_MESSAGE);
-        }
+        ShoppingCart cart = getCart(user);
+        throwIfCartEmpty(cart);
+        Set<CartItem> itemsFromCart = cart.getCartItems();
         Order order = cart.createOrder(addressDto.shippingAddress());
-        Order savedOrder = orderRepository.save(order);
-        Set<OrderItem> orderItems = cart.createOrderItems(savedOrder.getId());
-        orderItemRepository.saveAll(orderItems);
-        cartItemRepository.deleteAll(cart.getCartItems());
-        return orderMapper.toDto(savedOrder.setOrderItems(orderItems));
+        Set<OrderItem> orderItems = mapToOrderItems(itemsFromCart);
+        order.setOrderItems(orderItems);
+        cartItemRepository.deleteAll(itemsFromCart);
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     @Override
@@ -96,7 +98,7 @@ public class OrderServiceImpl implements OrderService {
         return orderItemMapper.toDto(item);
     }
 
-    private ShoppingCart getCartOrThrow(User user) {
+    private ShoppingCart getCart(User user) {
         return cartRepository.findById(user.getId()).orElseThrow(
                 entityNotFoundException(SHOPPING_CART_NOT_FOUND_MESSAGE, user.getId()));
     }
@@ -104,5 +106,17 @@ public class OrderServiceImpl implements OrderService {
     private Order getOrderOrThrow(Long orderId, Long userId) {
         return orderRepository.findByIdAndUserId(orderId, userId).orElseThrow(
                 entityNotFoundException(ORDER_NOT_FOUND_MESSAGE, orderId, userId));
+    }
+
+    private void throwIfCartEmpty(ShoppingCart cart) {
+        if (cart.getCartItems().isEmpty()) {
+            throw new IllegalStateException(EMPTY_SHOPPING_CART_MESSAGE);
+        }
+    }
+
+    private Set<OrderItem> mapToOrderItems(Set<CartItem> cartItems) {
+        return cartItems.stream()
+                .map(cartItemMapper::toOrderItem)
+                .collect(Collectors.toSet());
     }
 }

@@ -55,12 +55,4 @@ public class CartItem {
     public BigDecimal calculateCostOfCartItem() {
         return book.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
-
-    public OrderItem createOrderItem(Long orderId) {
-        return new OrderItem()
-                .setOrder(new Order(orderId))
-                .setBook(book)
-                .setQuantity(quantity)
-                .setPrice(calculateCostOfCartItem());
-    }
 }

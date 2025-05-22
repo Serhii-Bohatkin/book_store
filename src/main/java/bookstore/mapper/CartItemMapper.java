@@ -6,6 +6,7 @@ import bookstore.dto.cartitem.CartItemRequestDto;
 import bookstore.dto.cartitem.UpdateCartItemDto;
 import bookstore.model.Book;
 import bookstore.model.CartItem;
+import bookstore.model.OrderItem;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -38,4 +39,14 @@ public interface CartItemMapper {
     @Mapping(target = "book", ignore = true)
     @Mapping(target = "deleted", ignore = true)
     void update(@MappingTarget CartItem cartItem, UpdateCartItemDto updateDto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "order", ignore = true)
+    @Mapping(target = "price", ignore = true)
+    OrderItem toOrderItem(CartItem cartItem);
+
+    @AfterMapping
+    default void setPrice(@MappingTarget OrderItem orderItem, CartItem cartItem) {
+        orderItem.setPrice(cartItem.calculateCostOfCartItem());
+    }
 }
