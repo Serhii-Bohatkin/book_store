@@ -16,6 +16,7 @@ import bookstore.repository.BookRepository;
 import bookstore.repository.CategoryRepository;
 import bookstore.repository.book.BookSpecificationBuilder;
 import bookstore.service.BookService;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -78,7 +79,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Page<BookDto> search(BookSearchParametersDto parametersDto, Pageable pageable) {
-        if (isEmptySearch(parametersDto)) {
+        if (isEmptySearchParameters(parametersDto)) {
             return findAll(pageable);
         }
         BookSearchParametersDto formattedDto = bookMapper.formatParametersDto(parametersDto);
@@ -89,11 +90,12 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Page<BookDtoWithoutCategoryIds> findByCategoryId(Long categoryId, Pageable pageable) {
+        throwExceptionIfCategoriesNotExist(Collections.singletonList(categoryId));
         return bookRepository.findAllByCategoryId(categoryId, pageable)
                 .map(bookMapper::toDtoWithoutCategories);
     }
 
-    private boolean isEmptySearch(BookSearchParametersDto parametersDto) {
+    private boolean isEmptySearchParameters(BookSearchParametersDto parametersDto) {
         return parametersDto.title() == null
                 && parametersDto.author() == null
                 && parametersDto.isbn() == null

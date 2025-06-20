@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -54,5 +55,20 @@ public class CartItem {
 
     public BigDecimal calculateCostOfCartItem() {
         return book.getPrice().multiply(BigDecimal.valueOf(quantity));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CartItem cartItem = (CartItem) o;
+        return Objects.equals(id, cartItem.id)
+                && Objects.equals(quantity, cartItem.quantity);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, quantity);
     }
 }

@@ -19,11 +19,9 @@ public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificat
     Page<Book> findAllByCategoryId(Long categoryId, Pageable pageable);
 
     @NonNull
-    @EntityGraph(attributePaths = "categories")
     Page<Book> findAll(@NonNull Pageable pageable);
 
     @NonNull
-    @EntityGraph(attributePaths = "categories")
     Page<Book> findAll(@Nullable Specification<Book> spec, @NonNull Pageable pageable);
 
     @NonNull

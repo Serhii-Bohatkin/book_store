@@ -1,0 +1,15 @@
+INSERT INTO users (id, email, password, first_name, last_name, shipping_address, is_deleted)
+VALUES (1,
+        'user@gmail.com',
+        '$2a$10$TiWXRP/UCiXdc21fpBvQu.HqHwVuvPPZH7/FgUsHMDnLq2sxlSD62',
+        'John',
+        'Doe',
+        '26871, Zaporizhzhya region, Zaporizhzhya, st. Kopilenka, 94',
+        false),
+       (2,
+        'admin@gmail.com',
+        '$2a$10$TiWXRP/UCiXdc21fpBvQu.HqHwVuvPPZH7/FgUsHMDnLq2sxlSD62',
+        'Bob',
+        'Doe',
+        '14152, Lviv region, Lviv, prosp. Melnikova, 40',
+        false);

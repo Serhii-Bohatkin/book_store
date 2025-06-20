@@ -42,10 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     @Override
     public CategoryDto save(CreateCategoryRequestDto requestDto) {
-        if (categoryRepository.existsByName(requestDto.name())) {
-            throw new EntityAlreadyExistsException(
-                    CATEGORY_ALREADY_EXISTS_MESSAGE, requestDto.name());
-        }
+        throwIfCategoryExistsByName(requestDto.name());
         Category savedCategory = categoryRepository.save(categoryMapper.toModel(requestDto));
         return categoryMapper.toDto(savedCategory);
     }
@@ -54,6 +51,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto update(Long categoryId, UpdateCategoryRequestDto requestDto) {
         Category category = getCategoryOrThrow(categoryId);
+        if (!category.getName().equals(requestDto.name())) {
+            throwIfCategoryExistsByName(requestDto.name());
+        }
         categoryMapper.updateCategory(category, requestDto);
         return categoryMapper.toDto(categoryRepository.save(category));
     }
@@ -70,5 +70,12 @@ public class CategoryServiceImpl implements CategoryService {
     private Category getCategoryOrThrow(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(entityNotFoundException(CATEGORY_NOT_FOUND_MESSAGE, id));
+    }
+
+    private void throwIfCategoryExistsByName(String categoryName) {
+        if (categoryRepository.existsByNameIgnoreCase(categoryName)) {
+            throw new EntityAlreadyExistsException(
+                    CATEGORY_ALREADY_EXISTS_MESSAGE, categoryName);
+        }
     }
 }

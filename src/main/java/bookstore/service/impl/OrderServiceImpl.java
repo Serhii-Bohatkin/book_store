@@ -1,7 +1,6 @@
 package bookstore.service.impl;
 
 import static bookstore.exception.EntityNotFoundException.entityNotFoundException;
-import static bookstore.service.impl.ShoppingCartServiceImpl.SHOPPING_CART_NOT_FOUND_MESSAGE;
 
 import bookstore.dto.order.OrderAddressDto;
 import bookstore.dto.order.OrderDto;
@@ -34,6 +33,8 @@ import org.springframework.stereotype.Service;
 public class OrderServiceImpl implements OrderService {
     private static final String ORDER_NOT_FOUND_MESSAGE =
             "An order with orderId {0} and userId {1} does not exist";
+    private static final String ORDER_DOES_NOT_EXIST_MESSAGE =
+            "An order with orderId {0} does not exist";
     private static final String EMPTY_SHOPPING_CART_MESSAGE = "First add books to shopping cart";
     private static final String ORDER_ITEM_NOT_FOUND_MESSAGE =
             "An order item with itemId {0}, orderId {1} and userId {2} does not exist";
@@ -48,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderDto placeOrder(User user, OrderAddressDto addressDto) {
-        ShoppingCart cart = getCart(user);
+        ShoppingCart cart = cartRepository.getByUserId(user.getId());
         throwIfCartEmpty(cart);
         Set<CartItem> itemsFromCart = cart.getCartItems();
         Order order = cart.createOrder(addressDto.shippingAddress());
@@ -66,8 +67,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public OrderDto updateStatus(Long orderId, User user, OrderStatusDto statusDto) {
-        Order order = getOrderOrThrow(orderId, user.getId());
+    public OrderDto updateStatus(Long orderId, OrderStatusDto statusDto) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(entityNotFoundException(ORDER_DOES_NOT_EXIST_MESSAGE, orderId));
         Order savedOrder = orderRepository.save(order.setStatus(statusDto.status()));
         return orderMapper.toDto(savedOrder);
     }
@@ -96,11 +98,6 @@ public class OrderServiceImpl implements OrderService {
                         ORDER_ITEM_NOT_FOUND_MESSAGE,
                         itemId, orderId, userId));
         return orderItemMapper.toDto(item);
-    }
-
-    private ShoppingCart getCart(User user) {
-        return cartRepository.findById(user.getId()).orElseThrow(
-                entityNotFoundException(SHOPPING_CART_NOT_FOUND_MESSAGE, user.getId()));
     }
 
     private Order getOrderOrThrow(Long orderId, Long userId) {

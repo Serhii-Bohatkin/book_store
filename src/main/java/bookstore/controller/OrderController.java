@@ -53,10 +53,9 @@ public class OrderController {
             "Specify one of the following statuses: NEW, PROCESSED, SHIPPED, DELIVERED, CANCELED")
     @PatchMapping("/{orderId}")
     public OrderDto updateStatus(@PathVariable @Min(1) Long orderId,
-                                 @AuthenticationPrincipal User user,
                                  @RequestBody OrderStatusDto statusDto
     ) {
-        return orderService.updateStatus(orderId, user, statusDto);
+        return orderService.updateStatus(orderId, statusDto);
     }
 
     @Operation(summary = "Get all items by order id", description = "Get all items by order id")

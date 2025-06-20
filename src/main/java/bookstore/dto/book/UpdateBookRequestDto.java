@@ -1,6 +1,7 @@
 package bookstore.dto.book;
 
 import bookstore.validation.Isbn;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.util.List;
@@ -14,6 +15,6 @@ public record UpdateBookRequestDto(
         BigDecimal price,
         String description,
         String coverImage,
-        List<Long> categoryIds
+        List<@Min(1) Long> categoryIds
 ) {
 }

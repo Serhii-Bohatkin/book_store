@@ -1,5 +1,6 @@
 package bookstore.exception;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
@@ -108,6 +109,12 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
             IllegalStateException ex) {
         Map<String, Object> body = createHttpResponseBody(HttpStatus.CONFLICT, ex);
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<Object> handleJwtException(JwtException ex) {
+        Map<String, Object> body = createHttpResponseBody(HttpStatus.BAD_REQUEST, ex);
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     private String getErrorMessage(ConstraintViolation<?> violation) {

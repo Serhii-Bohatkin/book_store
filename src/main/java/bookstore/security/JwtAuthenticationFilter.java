@@ -24,9 +24,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION = "Authorization";
-    private final JwtUtil jwtUtil;
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final ObjectMapper objectMapper;
-    private final JwtProvider jwtProvider;
+    private final JwtService jwtService;
 
     @Override
     protected void doFilterInternal(
@@ -36,9 +36,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         try {
             final String token = getTokenFromRequest(request);
-            if (token != null && jwtProvider.validateAccessToken(token)) {
-                final Claims claims = jwtProvider.getAccessClaims(token);
-                final JwtAuthentication authentication = jwtUtil.createAuthentication(claims);
+            if (token != null && jwtService.validateAccessToken(token)) {
+                final Claims claims = jwtService.getAccessClaims(token);
+                final JwtAuthentication authentication =
+                        jwtAuthenticationProvider.createAuthentication(claims);
                 authentication.setAuthenticated(true);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

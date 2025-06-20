@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class JwtUtil {
+public class JwtAuthenticationProvider {
     private final RoleRepository roleRepository;
     private final ObjectMapper objectMapper;
     private final UserService userService;
@@ -38,8 +37,7 @@ public class JwtUtil {
         );
         return roles.stream()
                 .map(Role.RoleName::valueOf)
-                .map(roleRepository::findByName)
-                .map(Optional::orElseThrow)
+                .map(roleRepository::getByName)
                 .collect(Collectors.toSet());
     }
 }

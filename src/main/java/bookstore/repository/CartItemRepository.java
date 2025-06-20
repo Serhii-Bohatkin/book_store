@@ -5,7 +5,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
-    boolean existsByShoppingCart_IdAndBook_Id(Long shoppingCartId, Long bookId);
+    boolean existsByShoppingCart_User_IdAndBook_Id(Long userId, Long bookId);
 
-    Optional<CartItem> findByIdAndShoppingCartId(Long cartItemId, Long shoppingCartId);
+    Optional<CartItem> findByIdAndShoppingCart_User_Id(Long cartItemId, Long userId);
+
 }
