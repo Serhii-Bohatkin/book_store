@@ -1,6 +1,7 @@
 package bookstore.dto.book;
 
 import bookstore.validation.Isbn;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -20,6 +21,6 @@ public record CreateBookRequestDto(
         BigDecimal price,
         String description,
         String coverImage,
-        List<Long> categoryIds
+        List<@Min(1) Long> categoryIds
 ) {
 }

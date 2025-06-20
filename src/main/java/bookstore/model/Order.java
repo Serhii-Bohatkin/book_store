@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -64,9 +65,10 @@ public class Order {
         this.id = id;
     }
 
-    public void setOrderItems(Set<OrderItem> orderItems) {
+    public Order setOrderItems(Set<OrderItem> orderItems) {
         this.orderItems = orderItems;
         orderItems.forEach(orderItem -> orderItem.setOrder(this));
+        return this;
     }
 
     public enum Status {
@@ -75,5 +77,22 @@ public class Order {
         SHIPPED,
         DELIVERED,
         CANCELED
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Order order = (Order) o;
+        return Objects.equals(id, order.id) && status == order.status
+                && Objects.equals(total, order.total)
+                && Objects.equals(orderDate, order.orderDate)
+                && Objects.equals(shippingAddress, order.shippingAddress);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, status, total, orderDate, shippingAddress);
     }
 }

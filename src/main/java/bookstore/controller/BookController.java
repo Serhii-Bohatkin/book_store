@@ -80,7 +80,7 @@ public class BookController {
             + "If you want to chain several queries in the same call, use & followed by the query."
             + " Pagination: add a & followed by the query {page}={value}&{size}={value}. "
             + "For example: /books/search"
-            + "?titles=harry potter and the philosopher's stone&page=0&size=10 "
+            + "?title=harry potter and the philosopher's stone&page=0&size=10 "
             + "Sorting: add & followed by {sort}={field} or {sort}={field, DESC}")
     @GetMapping("/search")
     public PageDto<BookDto> searchBooks(@Valid BookSearchParametersDto parametersDto,

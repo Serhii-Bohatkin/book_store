@@ -11,6 +11,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,6 +45,10 @@ public class ShoppingCart {
         this.id = id;
     }
 
+    public ShoppingCart(User user) {
+        this.user = user;
+    }
+
     public Order createOrder(String address) {
         return new Order()
                 .setUser(user)
@@ -55,5 +60,19 @@ public class ShoppingCart {
         return cartItems.stream()
                 .map(CartItem::calculateCostOfCartItem)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ShoppingCart that = (ShoppingCart) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

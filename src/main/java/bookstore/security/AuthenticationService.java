@@ -12,6 +12,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,27 +20,27 @@ import org.springframework.stereotype.Service;
 public class AuthenticationService {
     private final UserService userService;
     private final Map<String, String> refreshStorage = new HashMap<>();
-    private final JwtProvider jwtProvider;
+    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     public JwtResponseDto login(@NonNull UserLoginRequestDto requestDto) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                requestDto.email(), requestDto.password()));
-        User user = (User) userService.loadUserByUsername(requestDto.email());
-        final String accessToken = jwtProvider.generateAccessToken(user);
-        final String refreshToken = jwtProvider.generateRefreshToken(user);
+        final Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(requestDto.email(), requestDto.password()));
+        User user = (User) authentication.getPrincipal();
+        final String accessToken = jwtService.generateAccessToken(user);
+        final String refreshToken = jwtService.generateRefreshToken(user);
         refreshStorage.put(user.getEmail(), refreshToken);
         return new JwtResponseDto(accessToken, refreshToken);
     }
 
     public JwtResponseDto getAccessToken(@NonNull String refreshToken) {
-        if (jwtProvider.validateRefreshToken(refreshToken)) {
-            final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
+        if (jwtService.validateRefreshToken(refreshToken)) {
+            final Claims claims = jwtService.getRefreshClaims(refreshToken);
             final String email = claims.getSubject();
             final String savedRefreshToken = refreshStorage.get(email);
             if (savedRefreshToken != null && savedRefreshToken.equals(refreshToken)) {
                 final User user = (User) userService.loadUserByUsername(email);
-                final String accessToken = jwtProvider.generateAccessToken(user);
+                final String accessToken = jwtService.generateAccessToken(user);
                 return new JwtResponseDto(accessToken, null);
             }
         }
@@ -47,14 +48,14 @@ public class AuthenticationService {
     }
 
     public JwtResponseDto refresh(@NonNull String refreshToken) {
-        if (jwtProvider.validateRefreshToken(refreshToken)) {
-            final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
+        if (jwtService.validateRefreshToken(refreshToken)) {
+            final Claims claims = jwtService.getRefreshClaims(refreshToken);
             final String email = claims.getSubject();
             final String saveRefreshToken = refreshStorage.get(email);
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
                 final User user = (User) userService.loadUserByUsername(email);
-                final String accessToken = jwtProvider.generateAccessToken(user);
-                final String newRefreshToken = jwtProvider.generateRefreshToken(user);
+                final String accessToken = jwtService.generateAccessToken(user);
+                final String newRefreshToken = jwtService.generateRefreshToken(user);
                 refreshStorage.put(user.getEmail(), newRefreshToken);
                 return new JwtResponseDto(accessToken, newRefreshToken);
             }

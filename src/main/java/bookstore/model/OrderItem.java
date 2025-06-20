@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -46,4 +47,20 @@ public class OrderItem {
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OrderItem orderItem = (OrderItem) o;
+        return Objects.equals(id, orderItem.id)
+                && Objects.equals(quantity, orderItem.quantity)
+                && Objects.equals(price, orderItem.price);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, quantity, price);
+    }
 }

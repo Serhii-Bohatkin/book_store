@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -88,15 +89,27 @@ public class User implements UserDetails {
         return !isDeleted;
     }
 
-    public ShoppingCart createShoppingCart() {
-        ShoppingCart shoppingCart = new ShoppingCart();
-        shoppingCart.setUser(this);
-        return shoppingCart;
-    }
-
     public boolean hasRole(Role.RoleName name) {
         return roles.stream()
                 .map(Role::getName)
                 .anyMatch(roleName -> roleName.equals(name));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        User user = (User) o;
+        return Objects.equals(id, user.id) && Objects.equals(email, user.email)
+                && Objects.equals(password, user.password)
+                && Objects.equals(firstName, user.firstName)
+                && Objects.equals(lastName, user.lastName)
+                && Objects.equals(shippingAddress, user.shippingAddress);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, password, firstName, lastName, shippingAddress);
     }
 }

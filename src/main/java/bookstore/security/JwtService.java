@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class JwtProvider {
+public class JwtService {
     private static final int MILLISECONDS_IN_A_MINUTE = 60000;
     private static final int MILLISECONDS_IN_A_DAY = 86400000;
     private final SecretKey jwtAccessSecret;
@@ -27,7 +27,7 @@ public class JwtProvider {
     @Value("${jwt.refreshTokenExpirationInDays}")
     private long refreshExpirationInDays;
 
-    public JwtProvider(
+    public JwtService(
             @Value("${jwt.accessSecret}") String jwtAccessSecret,
             @Value("${jwt.refreshSecret}") String jwtRefreshSecret
     ) {

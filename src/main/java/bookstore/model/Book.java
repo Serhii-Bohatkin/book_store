@@ -12,10 +12,13 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -52,6 +55,7 @@ public class Book {
     @JoinTable(name = "books_categories",
             joinColumns = @JoinColumn(name = "book_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "category_id", nullable = false))
+    @Fetch(FetchMode.SUBSELECT)
     private Set<Category> categories = new HashSet<>();
 
     @Column(name = "is_deleted", nullable = false)
@@ -59,5 +63,22 @@ public class Book {
 
     public Book(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Book book = (Book) o;
+        return Objects.equals(id, book.id) && Objects.equals(title, book.title)
+                && Objects.equals(author, book.author)
+                && Objects.equals(isbn, book.isbn)
+                && Objects.equals(price, book.price);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, author, isbn, price);
     }
 }
