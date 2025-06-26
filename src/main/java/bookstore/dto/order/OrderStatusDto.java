@@ -1,8 +1,8 @@
 package bookstore.dto.order;
 
-import bookstore.model.Order;
+import bookstore.model.enumeration.OrderStatus;
 
 public record OrderStatusDto(
-        Order.Status status
+        OrderStatus status
 ) {
 }

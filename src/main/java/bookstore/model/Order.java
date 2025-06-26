@@ -1,5 +1,6 @@
 package bookstore.model;
 
+import bookstore.model.enumeration.OrderStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,7 +45,7 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status = Status.NEW;
+    private OrderStatus status = OrderStatus.NEW;
 
     @Column(nullable = false)
     private BigDecimal total;
@@ -71,12 +72,8 @@ public class Order {
         return this;
     }
 
-    public enum Status {
-        NEW,
-        PROCESSED,
-        SHIPPED,
-        DELIVERED,
-        CANCELED
+    public void handleCancel() {
+        status.handleCancel(this);
     }
 
     @Override

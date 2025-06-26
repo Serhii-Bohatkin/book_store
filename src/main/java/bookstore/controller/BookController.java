@@ -1,5 +1,6 @@
 package bookstore.controller;
 
+import bookstore.controller.api.BookControllerApi;
 import bookstore.dto.book.BookDto;
 import bookstore.dto.book.BookSearchParametersDto;
 import bookstore.dto.book.CreateBookRequestDto;
@@ -7,84 +8,51 @@ import bookstore.dto.book.UpdateBookRequestDto;
 import bookstore.dto.page.PageDto;
 import bookstore.mapper.PageMapper;
 import bookstore.service.BookService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/books")
 @RequiredArgsConstructor
-@Tag(name = "Book management", description = "Endpoints for managing books")
 @Validated
-public class BookController {
+public class BookController implements BookControllerApi {
     private final BookService bookService;
     private final PageMapper pageMapper;
 
-    @Operation(summary = "Get all books", description = "Get a list of all available books. "
-            + "Pagination: add a ? followed by the query {page}={value}&{size}={value} "
-            + "For example: /books?page=0&size=10 "
-            + "Sorting: add & followed by {sort}={field} or {sort}={field, DESC}")
     @GetMapping
+    @Override
     public PageDto<BookDto> getAll(Pageable pageable) {
         return pageMapper.toDto(bookService.findAll(pageable));
     }
 
-    @Operation(summary = "Get a book by id", description = "Get a book by id")
-    @GetMapping("/{bookId}")
-    public BookDto getBookById(@PathVariable @Min(1) Long bookId) {
+    @Override
+    public BookDto getBookById(Long bookId) {
         return bookService.findById(bookId);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @Operation(summary = "Create a book", description = "Create a book")
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public BookDto createBook(@RequestBody @Valid CreateBookRequestDto bookDto) {
+    @Override
+    public BookDto createBook(CreateBookRequestDto bookDto) {
         return bookService.save(bookDto);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @Operation(summary = "Update book ", description = "Update the book by id")
-    @PatchMapping("/{bookId}")
-    public BookDto updateBook(@RequestBody @Valid UpdateBookRequestDto requestDto,
-                              @PathVariable @Min(1) Long bookId) {
+    @Override
+    public BookDto updateBook(UpdateBookRequestDto requestDto, Long bookId) {
         return bookService.update(requestDto, bookId);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @Operation(summary = "Delete book", description = "Delete the book by id")
-    @DeleteMapping("/{bookId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable @Min(1) Long bookId) {
+    @Override
+    public void deleteById(Long bookId) {
         bookService.deleteById(bookId);
     }
 
-    @Operation(summary = "Search book", description
-            = "Search books by {title}, {author}, {isbn} or {minPrice}/{maxPrice}. "
-            + "To start searching add a ? followed by the query {query}={value}. "
-            + "If you want to chain several queries in the same call, use & followed by the query."
-            + " Pagination: add a & followed by the query {page}={value}&{size}={value}. "
-            + "For example: /books/search"
-            + "?title=harry potter and the philosopher's stone&page=0&size=10 "
-            + "Sorting: add & followed by {sort}={field} or {sort}={field, DESC}")
-    @GetMapping("/search")
-    public PageDto<BookDto> searchBooks(@Valid BookSearchParametersDto parametersDto,
-                                        Pageable pageable) {
+    @Override
+    public PageDto<BookDto> searchBooks(BookSearchParametersDto parametersDto, Pageable pageable) {
         return pageMapper.toDto(bookService.search(parametersDto, pageable));
     }
 }

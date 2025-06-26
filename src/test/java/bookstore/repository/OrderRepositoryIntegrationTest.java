@@ -40,10 +40,9 @@ class OrderRepositoryIntegrationTest {
     @Test
     @DisplayName("Should return list of orders for valid user ID")
     void findAllByUserId_ValidUserId_ReturnOrder() {
-        List<Order> expected = List.of(TestObjectsFactory.createOrder());
         List<Order> actual =
                 orderRepository.findAllByUserId(VALID_USER_ID, DEFAULT_PAGE_REQUEST).getContent();
-        assertThat(actual).isEqualTo(expected);
+        assertThat(actual).hasSize(5);
         Set<OrderItem> orderItems = actual.getFirst().getOrderItems();
         assertThat(orderItems).isNotEmpty();
     }

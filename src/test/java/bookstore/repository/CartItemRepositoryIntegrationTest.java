@@ -6,6 +6,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TE
 
 import bookstore.TestObjectsFactory;
 import bookstore.model.CartItem;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -101,5 +102,24 @@ class CartItemRepositoryIntegrationTest {
                 itemRepository.findByIdAndShoppingCart_User_Id(INVALID_CART_ITEM_ID,
                         VALID_USER_ID);
         assertThat(actual).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should delete all cart items for the specified user")
+    void deleteAllByShoppingCart_User_Id_ValidUserId_ShouldDeleteAllItemsForUser() {
+        itemRepository.deleteAllByShoppingCart_User_Id(VALID_USER_ID);
+
+        List<CartItem> actual = itemRepository.findAll();
+        assertThat(actual)
+                .hasSize(1)
+                .allMatch(item -> !item.getShoppingCart().getUser().getId().equals(VALID_USER_ID));
+    }
+
+    @Test
+    @DisplayName("Should do nothing if a user does not exist")
+    void deleteAllByShoppingCart_User_Id_NonExistingUserId_ShouldDoNothingIfUserDoesNotExist() {
+        itemRepository.deleteAllByShoppingCart_User_Id(Long.MAX_VALUE);
+        List<CartItem> actual = itemRepository.findAll();
+        assertThat(actual).hasSize(3);
     }
 }

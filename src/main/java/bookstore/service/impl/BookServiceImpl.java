@@ -53,6 +53,7 @@ public class BookServiceImpl implements BookService {
         return bookMapper.toDto(book);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Page<BookDto> findAll(Pageable pageable) {
         return bookRepository.findAll(pageable)
@@ -77,10 +78,12 @@ public class BookServiceImpl implements BookService {
         bookRepository.deleteById(bookId);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Page<BookDto> search(BookSearchParametersDto parametersDto, Pageable pageable) {
         if (isEmptySearchParameters(parametersDto)) {
-            return findAll(pageable);
+            return bookRepository.findAll(pageable)
+                    .map(bookMapper::toDto);
         }
         BookSearchParametersDto formattedDto = bookMapper.formatParametersDto(parametersDto);
         Specification<Book> bookSpecification = bookSpecificationBuilder.build(formattedDto);

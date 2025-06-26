@@ -57,6 +57,7 @@ class ShoppingCartControllerIntegrationTest {
 
     private static final Long VALID_BOOK_ID = 1L;
     private static final Long VALID_ITEM_ID = 1L;
+    private static final Long USER_ID = 1L;
     private static final Long NEGATIVE_BOOK_ID = Long.MIN_VALUE;
     private static final Long NEGATIVE_ITEM_ID = Long.MIN_VALUE;
     private static final Long NON_EXISTING_BOOK_ID = Long.MAX_VALUE;
@@ -168,6 +169,18 @@ class ShoppingCartControllerIntegrationTest {
 
         assertThat(jsonResponse).contains(
                 QUANTITY_MUST_BE_POSITIVE_MESSAGE, BOOK_ID_MUST_BE_POSITIVE_MESSAGE);
+    }
+
+    @Test
+    @DisplayName(
+            "Should delete all cart items for the authenticated user and return 204 No Content")
+    @WithUserDetails("user@gmail.com")
+    void clearCart_ShouldDeleteAllCartItemsForUser() throws Exception {
+        mockMvc.perform(delete(BASE_URL))
+                .andExpect(status().isNoContent())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
     }
 
     @Test

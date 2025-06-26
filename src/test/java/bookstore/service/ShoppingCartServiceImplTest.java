@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -231,6 +232,19 @@ class ShoppingCartServiceImplTest {
                     MessageFormat.format(CART_ITEM_NOT_FOUND_MESSAGE, CART_ITEM_ID));
             verify(cartItemRepository).findByIdAndShoppingCart_User_Id(CART_ITEM_ID, USER_ID);
             verify(cartItemRepository, never()).delete(any(CartItem.class));
+        }
+    }
+
+    @Nested
+    class ClearCartMethodTests {
+        @Test
+        @DisplayName("Should call repository to delete all cart items for the given user")
+        void clearCart_ShouldCallDeleteAllByShoppingCart_User_IdFromRepository() {
+            doNothing().when(cartItemRepository).deleteAllByShoppingCart_User_Id(USER_ID);
+
+            shoppingCartService.clearCart(user);
+
+            verify(cartItemRepository, times(1)).deleteAllByShoppingCart_User_Id(USER_ID);
         }
     }
 }
