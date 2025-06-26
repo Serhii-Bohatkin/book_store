@@ -100,6 +100,14 @@ public class OrderServiceImpl implements OrderService {
         return orderItemMapper.toDto(item);
     }
 
+    @Transactional
+    @Override
+    public OrderDto cancelOrder(Long orderId, User user) {
+        Order order = getOrderOrThrow(orderId, user.getId());
+        order.handleCancel();
+        return orderMapper.toDto(orderRepository.save(order));
+    }
+
     private Order getOrderOrThrow(Long orderId, Long userId) {
         return orderRepository.findByIdAndUserId(orderId, userId).orElseThrow(
                 entityNotFoundException(ORDER_NOT_FOUND_MESSAGE, orderId, userId));

@@ -28,6 +28,7 @@ import bookstore.model.OrderItem;
 import bookstore.model.Role;
 import bookstore.model.ShoppingCart;
 import bookstore.model.User;
+import bookstore.model.enumeration.OrderStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -304,7 +305,7 @@ public class TestObjectsFactory {
         return new OrderAddressDto("26871, Zaporizhzhya region, Zaporizhzhya, st. Kopilenka, 94");
     }
 
-    public static OrderDto createOrderDtoWithStatus(Order.Status status) {
+    public static OrderDto createOrderDtoWithStatus(OrderStatus status) {
         return new OrderDto(
                 1L,
                 1L,
@@ -539,7 +540,7 @@ public class TestObjectsFactory {
         );
     }
 
-    public static OrderStatusDto createOrderStatusDto(Order.Status status) {
+    public static OrderStatusDto createOrderStatusDto(OrderStatus status) {
         return new OrderStatusDto(status);
     }
 

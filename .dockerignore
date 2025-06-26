@@ -1,6 +1,7 @@
 target/
 !target/*.jar
 build/
+icons/
 
 .apt_generated
 .classpath

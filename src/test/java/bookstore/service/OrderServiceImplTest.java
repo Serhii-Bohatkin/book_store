@@ -25,6 +25,7 @@ import bookstore.model.Order;
 import bookstore.model.OrderItem;
 import bookstore.model.ShoppingCart;
 import bookstore.model.User;
+import bookstore.model.enumeration.OrderStatus;
 import bookstore.repository.CartItemRepository;
 import bookstore.repository.OrderItemRepository;
 import bookstore.repository.OrderRepository;
@@ -53,6 +54,9 @@ class OrderServiceImplTest {
             "An order with orderId {0} and userId {1} does not exist";
     private static final String ORDER_ITEM_NOT_FOUND_MESSAGE =
             "An order item with itemId {0}, orderId {1} and userId {2} does not exist";
+    private static final String ORDER_ALREADY_CANCELLED_MESSAGE =
+            "Order with id {0} has already been cancelled";
+    private static final String CONTACT_SUPPORT_MESSAGE = "Please contact our support";
     private static final PageRequest DEFAULT_PAGE_REQUEST = PageRequest.of(0, 20);
     private static final Long ORDER_ID = 1L;
     private static final Long USER_ID = 1L;
@@ -90,7 +94,7 @@ class OrderServiceImplTest {
         firstOrderItemDto = TestObjectsFactory.createOrderItemDto();
         secondOrderItemDto = TestObjectsFactory.createSecondOrderItemDto();
         order = TestObjectsFactory.createOrder();
-        orderDto = TestObjectsFactory.createOrderDtoWithStatus(Order.Status.NEW);
+        orderDto = TestObjectsFactory.createOrderDtoWithStatus(OrderStatus.NEW);
         user = TestObjectsFactory.createUser();
     }
 
@@ -182,13 +186,13 @@ class OrderServiceImplTest {
 
         @BeforeEach
         void setUp() {
-            orderStatusDto = TestObjectsFactory.createOrderStatusDto(Order.Status.PROCESSED);
+            orderStatusDto = TestObjectsFactory.createOrderStatusDto(OrderStatus.PROCESSED);
         }
 
         @Test
         @DisplayName("Should return updated OrderDto when order ID is valid")
         void updateStatus_ValidOrderId_ShouldReturnOrderDto() {
-            OrderDto expected = TestObjectsFactory.createOrderDtoWithStatus(Order.Status.PROCESSED);
+            OrderDto expected = TestObjectsFactory.createOrderDtoWithStatus(OrderStatus.PROCESSED);
             when(orderRepository.findById(ORDER_ID)).thenReturn(Optional.of(order));
             when(orderRepository.save(any(Order.class))).thenReturn(order);
             when(orderMapper.toDto(order)).thenReturn(expected);
@@ -311,6 +315,97 @@ class OrderServiceImplTest {
                     MessageFormat.format(ORDER_ITEM_NOT_FOUND_MESSAGE, ITEM_ID, ORDER_ID, USER_ID));
             verify(orderItemRepository).findByIdAndOrderIdAndOrderUserId(ITEM_ID, ORDER_ID,
                     USER_ID);
+        }
+    }
+
+    @Nested
+    class CancelOrderMethodTests {
+        @Test
+        @DisplayName("Should cancel order when status is NEW")
+        void cancelOrder_CurrentStatusIsNew_ShouldCancelOrder() {
+            OrderDto expected = TestObjectsFactory.createOrderDtoWithStatus(OrderStatus.CANCELLED);
+            when(orderRepository.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(
+                    Optional.of(order));
+            when(orderRepository.save(order)).thenReturn(order);
+            when(orderMapper.toDto(order)).thenReturn(expected);
+
+            OrderDto actual = orderService.cancelOrder(ORDER_ID, user);
+
+            assertThat(actual.status()).isEqualTo(OrderStatus.CANCELLED);
+            verify(orderRepository).findByIdAndUserId(ORDER_ID, USER_ID);
+            verify(orderRepository).save(order);
+            verify(orderMapper).toDto(order);
+        }
+
+        @Test
+        @DisplayName("Should throw IllegalStateException when order is already CANCELLED")
+        void cancelOrder_CurrentStatusIsCancelled_ShouldThrowIllegalStateException() {
+            order.setStatus(OrderStatus.CANCELLED);
+            when(orderRepository.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(
+                    Optional.of(order));
+
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    () -> orderService.cancelOrder(ORDER_ID, user));
+            assertThat(ex.getMessage()).isEqualTo(MessageFormat.format(
+                    ORDER_ALREADY_CANCELLED_MESSAGE, order.getId()));
+            verify(orderRepository).findByIdAndUserId(ORDER_ID, USER_ID);
+            verify(orderRepository, never()).save(any(Order.class));
+        }
+
+        @Test
+        @DisplayName("Should throw IllegalStateException when order status is PROCESSED")
+        void cancelOrder_CurrentStatusIsProcessed_ShouldThrowIllegalStateException() {
+            order.setStatus(OrderStatus.PROCESSED);
+            when(orderRepository.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(
+                    Optional.of(order));
+
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    () -> orderService.cancelOrder(ORDER_ID, user));
+            assertThat(ex.getMessage()).isEqualTo(CONTACT_SUPPORT_MESSAGE);
+            verify(orderRepository).findByIdAndUserId(ORDER_ID, USER_ID);
+            verify(orderRepository, never()).save(any(Order.class));
+        }
+
+        @Test
+        @DisplayName("Should throw IllegalStateException when order status is SHIPPED")
+        void cancelOrder_CurrentStatusIsShipped_ShouldThrowIllegalStateException() {
+            order.setStatus(OrderStatus.SHIPPED);
+            when(orderRepository.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(
+                    Optional.of(order));
+
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    () -> orderService.cancelOrder(ORDER_ID, user));
+            assertThat(ex.getMessage()).isEqualTo(CONTACT_SUPPORT_MESSAGE);
+            verify(orderRepository).findByIdAndUserId(ORDER_ID, USER_ID);
+            verify(orderRepository, never()).save(any(Order.class));
+        }
+
+        @Test
+        @DisplayName("Should throw IllegalStateException when order status is DELIVERED")
+        void cancelOrder_CurrentStatusIsDelivered_ShouldThrowIllegalStateException() {
+            order.setStatus(OrderStatus.DELIVERED);
+            when(orderRepository.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(
+                    Optional.of(order));
+
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    () -> orderService.cancelOrder(ORDER_ID, user));
+            assertThat(ex.getMessage()).isEqualTo(CONTACT_SUPPORT_MESSAGE);
+            verify(orderRepository).findByIdAndUserId(ORDER_ID, USER_ID);
+            verify(orderRepository, never()).save(any(Order.class));
+        }
+
+        @Test
+        @DisplayName("Should throw EntityNotFoundException when order ID is invalid for user")
+        void cancelOrder_InvalidOrderId_ShouldThrowEntityNotFoundException() {
+            when(orderRepository.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(
+                    Optional.empty());
+
+            EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+                    () -> orderService.cancelOrder(ORDER_ID, user));
+            assertThat(ex.getMessage()).isEqualTo(MessageFormat.format(
+                    ORDER_NOT_FOUND_MESSAGE, ORDER_ID, USER_ID));
+            verify(orderRepository).findByIdAndUserId(ORDER_ID, USER_ID);
+            verify(orderRepository, never()).save(any(Order.class));
         }
     }
 }

@@ -68,6 +68,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         cartItemRepository.delete(cartItem);
     }
 
+    @Transactional
+    @Override
+    public void clearCart(User user) {
+        cartItemRepository.deleteAllByShoppingCart_User_Id(user.getId());
+    }
+
     private CartItem createNewCartItem(Book book, CartItemRequestDto requestDto, Long userId) {
         return cartItemMapper.toModel(requestDto)
                 .setBook(book)
